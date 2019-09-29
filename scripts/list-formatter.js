@@ -34,8 +34,7 @@ var List2Tree;
             // if last node in stack has a lower level than current line
             // => the last node is the parent of the current line
             if (lastNode.level < currentNode.level) {
-                parent = lastNode;
-                stack.push(currentNode);
+                // last node is already the parent
             }
             // if last node in stack has same level as current line
             // => it last node and current line are siblings
@@ -44,8 +43,6 @@ var List2Tree;
                     stack.pop();
                     lastNode = stack[stack.length - 1];
                 }
-                parent = lastNode;
-                stack.push(currentNode);
             }
             // if last node in stack has higher level than current line
             // => the current line is in a new tree and we need to pop until we find its parent
@@ -54,9 +51,10 @@ var List2Tree;
                     stack.pop();
                     lastNode = stack[stack.length - 1];
                 }
-                parent = lastNode;
             }
+            parent = lastNode;
             parent.children.push(currentNode);
+            stack.push(currentNode);
         }
         return stack[0];
     }
