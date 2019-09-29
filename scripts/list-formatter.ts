@@ -23,16 +23,14 @@ namespace List2Tree {
 
     export function render(string: string): string {
         let lines = processText(string)
-        console.log(lines.map(x => `${x.text} ${x.level}`))
         let tree = constructTree(lines)
-        console.log(tree)
         return formatTree(tree, [])
     }
 
     function processText(string: string): Line[] {
         var lines: Line[] = []
 
-        for (let textLine of string.split("\n")) {
+        for (let textLine of string.trim().split("\n")) {
             lines.push({ text: textLine.replace(/^\s*/, ""), level: textLine.length - textLine.replace(/^\s*/, "").length })
         }
 
@@ -40,25 +38,49 @@ namespace List2Tree {
     }
 
     function constructTree(lines: Line[]): Tree | undefined {
-        let firstLine = lines.shift()
+        if (lines.length == 0) { return undefined }
+
+        var firstLine = lines.shift()
         var stack: Tree[] = [{ value: firstLine.text, level: firstLine.level, children: [] }]
+        var line: Line;
 
-        while (lines.length > 0) {
-            var line = lines.shift()
-            let lastLine = stack[stack.length-1]
+        while ((line = lines.shift()) != null) {
+            let currentNode = { value: line.text, level: line.level, children: [] }
+            var lastNode = stack[stack.length - 1]
+            var parent: Tree;
 
-            while (line.level < lastLine.level) {
-                stack.pop()
-                lastLine = stack[stack.length-1]
+            // if last node in stack has a lower level than current line
+            // => the last node is the parent of the current line
+            if (lastNode.level < currentNode.level) {
+                parent = lastNode
+                stack.push(currentNode)
+            }
+            // if last node in stack has same level as current line
+            // => it last node and current line are siblings
+            else if (lastNode.level == currentNode.level) {
+                while (lastNode.level == currentNode.level) {
+                    stack.pop()
+                    lastNode = stack[stack.length - 1]
+                }
+
+                parent = lastNode
+                stack.push(currentNode)
+            }
+            // if last node in stack has higher level than current line
+            // => the current line is in a new tree and we need to pop until we find its parent
+            else {
+                while (lastNode.level >= line.level) {
+                    stack.pop()
+                    lastNode = stack[stack.length - 1]
+                }
+
+                parent = lastNode
             }
 
-            if (line.level >= lastLine.level) {
-                let parent = lastLine
-                parent.children.push({ value: line.text, level: line.level, children: [] })
-            }
+            parent.children.push(currentNode)
         }
 
-        return stack.pop()
+        return stack[0]
     }
 
     function formatTree(tree: Tree, lineage: Node[]): string {

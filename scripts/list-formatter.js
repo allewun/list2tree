@@ -8,36 +8,57 @@ var List2Tree;
     })(Symbol || (Symbol = {}));
     function render(string) {
         var lines = processText(string);
-        console.log(lines.map(function (x) { return x.text + " " + x.level; }));
         var tree = constructTree(lines);
-        console.log(tree);
         return formatTree(tree, []);
     }
     List2Tree.render = render;
     function processText(string) {
         var lines = [];
-        for (var _i = 0, _a = string.split("\n"); _i < _a.length; _i++) {
+        for (var _i = 0, _a = string.trim().split("\n"); _i < _a.length; _i++) {
             var textLine = _a[_i];
             lines.push({ text: textLine.replace(/^\s*/, ""), level: textLine.length - textLine.replace(/^\s*/, "").length });
         }
         return lines;
     }
     function constructTree(lines) {
+        if (lines.length == 0) {
+            return undefined;
+        }
         var firstLine = lines.shift();
         var stack = [{ value: firstLine.text, level: firstLine.level, children: [] }];
-        while (lines.length > 0) {
-            var line = lines.shift();
-            var lastLine = stack[stack.length - 1];
-            while (line.level < lastLine.level) {
-                stack.pop();
-                lastLine = stack[stack.length - 1];
+        var line;
+        while ((line = lines.shift()) != null) {
+            var currentNode = { value: line.text, level: line.level, children: [] };
+            var lastNode = stack[stack.length - 1];
+            var parent;
+            // if last node in stack has a lower level than current line
+            // => the last node is the parent of the current line
+            if (lastNode.level < currentNode.level) {
+                parent = lastNode;
+                stack.push(currentNode);
             }
-            if (line.level >= lastLine.level) {
-                var parent_1 = lastLine;
-                parent_1.children.push({ value: line.text, level: line.level, children: [] });
+            // if last node in stack has same level as current line
+            // => it last node and current line are siblings
+            else if (lastNode.level == currentNode.level) {
+                while (lastNode.level == currentNode.level) {
+                    stack.pop();
+                    lastNode = stack[stack.length - 1];
+                }
+                parent = lastNode;
+                stack.push(currentNode);
             }
+            // if last node in stack has higher level than current line
+            // => the current line is in a new tree and we need to pop until we find its parent
+            else {
+                while (lastNode.level >= line.level) {
+                    stack.pop();
+                    lastNode = stack[stack.length - 1];
+                }
+                parent = lastNode;
+            }
+            parent.children.push(currentNode);
         }
-        return stack.pop();
+        return stack[0];
     }
     function formatTree(tree, lineage) {
         var result = formatNode({ value: tree.value, isLastChild: false }, lineage);
