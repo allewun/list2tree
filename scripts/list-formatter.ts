@@ -7,6 +7,7 @@ namespace List2Tree {
 
     type Tree = {
         value: string;
+        level: number,
         children: Tree[]; 
     }
 
@@ -15,16 +16,57 @@ namespace List2Tree {
         isLastChild: boolean;
     }
 
-    export function constructTree(string: string, stack: Tree[]): Tree {
-        return { value: "", children: [] };
+    type Line = {
+        text: string;
+        level: number;
     }
 
-    export function formatTree(tree: Tree, lineage: Node[]): string {
+    export function render(string: string): string {
+        let lines = processText(string)
+        console.log(lines.map(x => `${x.text} ${x.level}`))
+        let tree = constructTree(lines)
+        console.log(tree)
+        return formatTree(tree, [])
+    }
+
+    function processText(string: string): Line[] {
+        var lines: Line[] = []
+
+        for (let textLine of string.split("\n")) {
+            lines.push({ text: textLine.replace(/^\s*/, ""), level: textLine.length - textLine.replace(/^\s*/, "").length })
+        }
+
+        return lines
+    }
+
+    function constructTree(lines: Line[]): Tree | undefined {
+        let firstLine = lines.shift()
+        var stack: Tree[] = [{ value: firstLine.text, level: firstLine.level, children: [] }]
+
+        while (lines.length > 0) {
+            var line = lines.shift()
+            let lastLine = stack[stack.length-1]
+
+            while (line.level < lastLine.level) {
+                stack.pop()
+                lastLine = stack[stack.length-1]
+            }
+
+            if (line.level >= lastLine.level) {
+                let parent = lastLine
+                parent.children.push({ value: line.text, level: line.level, children: [] })
+            }
+        }
+
+        return stack.pop()
+    }
+
+    function formatTree(tree: Tree, lineage: Node[]): string {
         var result = formatNode({ value: tree.value, isLastChild: false }, lineage)
         let children = tree.children
 
         for (let child of children) {
-            result += formatTree(child, lineage.concat({ value: child.value, isLastChild: child == children[children.length-1] }))
+            result += formatTree(child, lineage.concat({ value: child.value, isLastChild: child == children[children.length - 1] }))
         }
         
         return result
@@ -66,20 +108,8 @@ namespace List2Tree {
 }
 
 $(document).ready(function() {
-    $("#textarea").on("input", function(event) {
+    $("#input").on("input", function(event) {
         let text = $(this).val().toString();
-        console.log(List2Tree.constructTree(text, []))
-
-        let tree = { value: "Foods", children: [
-            { value: "Fruits", children: [
-                { value: "Apple", children: [] },
-                { value: "Orange", children: [
-                    { value: "Cara-Cara", children: [] },
-                    { value: "Sour", children: [] },
-                ] },
-            ] }
-        ] };
-
-        console.log(List2Tree.formatTree(tree, []))
+        $("#output").text(List2Tree.render(text));
     });
 });

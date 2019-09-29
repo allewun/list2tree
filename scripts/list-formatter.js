@@ -6,10 +6,39 @@ var List2Tree;
         Symbol["Node"] = "\u251C\u2500";
         Symbol["EndNode"] = "\u2514\u2500";
     })(Symbol || (Symbol = {}));
-    function constructTree(string, stack) {
-        return { value: "", children: [] };
+    function render(string) {
+        var lines = processText(string);
+        console.log(lines.map(function (x) { return x.text + " " + x.level; }));
+        var tree = constructTree(lines);
+        console.log(tree);
+        return formatTree(tree, []);
     }
-    List2Tree.constructTree = constructTree;
+    List2Tree.render = render;
+    function processText(string) {
+        var lines = [];
+        for (var _i = 0, _a = string.split("\n"); _i < _a.length; _i++) {
+            var textLine = _a[_i];
+            lines.push({ text: textLine.replace(/^\s*/, ""), level: textLine.length - textLine.replace(/^\s*/, "").length });
+        }
+        return lines;
+    }
+    function constructTree(lines) {
+        var firstLine = lines.shift();
+        var stack = [{ value: firstLine.text, level: firstLine.level, children: [] }];
+        while (lines.length > 0) {
+            var line = lines.shift();
+            var lastLine = stack[stack.length - 1];
+            while (line.level < lastLine.level) {
+                stack.pop();
+                lastLine = stack[stack.length - 1];
+            }
+            if (line.level >= lastLine.level) {
+                var parent_1 = lastLine;
+                parent_1.children.push({ value: line.text, level: line.level, children: [] });
+            }
+        }
+        return stack.pop();
+    }
     function formatTree(tree, lineage) {
         var result = formatNode({ value: tree.value, isLastChild: false }, lineage);
         var children = tree.children;
@@ -19,7 +48,6 @@ var List2Tree;
         }
         return result;
     }
-    List2Tree.formatTree = formatTree;
     function formatNode(node, lineage) {
         var result = "";
         var i = 0;
@@ -52,18 +80,8 @@ var List2Tree;
     }
 })(List2Tree || (List2Tree = {}));
 $(document).ready(function () {
-    $("#textarea").on("input", function (event) {
+    $("#input").on("input", function (event) {
         var text = $(this).val().toString();
-        console.log(List2Tree.constructTree(text, []));
-        var tree = { value: "Foods", children: [
-                { value: "Fruits", children: [
-                        { value: "Apple", children: [] },
-                        { value: "Orange", children: [
-                                { value: "Cara-Cara", children: [] },
-                                { value: "Sour", children: [] },
-                            ] },
-                    ] }
-            ] };
-        console.log(List2Tree.formatTree(tree, []));
+        $("#output").text(List2Tree.render(text));
     });
 });

@@ -1,0 +1,22 @@
+#input {
+    width: 200px;
+    float: left;
+    height: 800px;
+    padding: 10px;
+}
+
+#output {
+    margin-left: 220px;
+    background: #eee;
+    height: 800px;
+    padding: 10px;
+}
+
+code {
+    white-space: pre;
+    display: block;
+}
+
+.clear {
+    clear: both;
+}
