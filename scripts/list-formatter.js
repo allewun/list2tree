@@ -1,17 +1,17 @@
 var List2Tree;
 (function (List2Tree) {
-    var _Symbol;
-    (function (_Symbol) {
-        _Symbol["Bar"] = "\u2502";
-        _Symbol["Node"] = "\u251C\u2500";
-        _Symbol["EndNode"] = "\u2514\u2500";
-    })(_Symbol || (_Symbol = {}));
+    var Symbol;
+    (function (Symbol) {
+        Symbol["Bar"] = "\u2502";
+        Symbol["Node"] = "\u251C\u2500";
+        Symbol["EndNode"] = "\u2514\u2500";
+    })(Symbol || (Symbol = {}));
     function constructTree(string, stack) {
         return { value: "", children: [] };
     }
     List2Tree.constructTree = constructTree;
     function formatTree(tree, lineage) {
-        var result = formatNode({ value: tree.value, isLastChild: false }, []);
+        var result = formatNode({ value: tree.value, isLastChild: false }, lineage);
         var children = tree.children;
         for (var _i = 0, children_1 = children; _i < children_1.length; _i++) {
             var child = children_1[_i];
@@ -26,24 +26,26 @@ var List2Tree;
         for (var _i = 0, lineage_1 = lineage; _i < lineage_1.length; _i++) {
             var node_1 = lineage_1[_i];
             var isCurrentNode = (i == lineage.length - 1);
-            switch ([node_1.isLastChild, isCurrentNode]) {
-                case [true, true]:
-                    result += _Symbol.EndNode + " ";
+            switch ([node_1.isLastChild, isCurrentNode].join()) {
+                case ([true, true].join()):
+                    result += Symbol.EndNode + " ";
                     break;
-                case [true, false]:
+                case [true, false].join():
                     result += "   ";
                     break;
-                case [false, true]:
+                case [false, true].join():
                     if (node_1.value == "") {
-                        result += _Symbol.Bar + " ";
+                        result += Symbol.Bar + " ";
                     }
                     else {
-                        result += _Symbol.Node + " ";
+                        result += Symbol.Node + " ";
                     }
                     break;
-                case [false, false]:
-                    result += _Symbol.Bar + "  ";
+                case [false, false].join():
+                    result += Symbol.Bar + "  ";
+                    break;
             }
+            i += 1;
         }
         result += node.value + "\n";
         return result;
@@ -53,5 +55,15 @@ $(document).ready(function () {
     $("#textarea").on("input", function (event) {
         var text = $(this).val().toString();
         console.log(List2Tree.constructTree(text, []));
+        var tree = { value: "Foods", children: [
+                { value: "Fruits", children: [
+                        { value: "Apple", children: [] },
+                        { value: "Orange", children: [
+                                { value: "Cara-Cara", children: [] },
+                                { value: "Sour", children: [] },
+                            ] },
+                    ] }
+            ] };
+        console.log(List2Tree.formatTree(tree, []));
     });
 });

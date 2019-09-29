@@ -1,5 +1,12 @@
 #!/usr/bin/swift
 
+enum Symbol {
+    static let bar = "│"
+    static let node = "├\(dash)"
+    static let endNode = "└\(dash)"
+    static let dash = "─"
+}
+
 struct Tree: Equatable {
     let value: String
     let children: [Tree]
@@ -11,15 +18,8 @@ struct Tree: Equatable {
 }
 
 struct Node {
-    var value: String
-    var isLastChild: Bool
-}
-
-enum Symbol {
-    static let bar = "│"
-    static let node = "├\(dash)"
-    static let endNode = "└\(dash)"
-    static let dash = "─"
+    let value: String
+    let isLastChild: Bool
 }
 
 func formatTree(_ tree: Tree, lineage: [Node] = []) -> String {
@@ -37,14 +37,11 @@ func formatNode(_ node: Node, lineage: [Node]) -> String {
 
     for (i, node) in lineage.enumerated() {
         let isCurrentNode = (i == lineage.count - 1)
-
         switch (node.isLastChild, isCurrentNode) {
             case (true, true):
                 result += "\(Symbol.endNode) "
             case (true, false):
                 result += "   "
-            case (false, false):
-                result += "\(Symbol.bar)  "
             case (false, true):
                 if node.value == "" {
                     result += "\(Symbol.bar) "
@@ -52,6 +49,8 @@ func formatNode(_ node: Node, lineage: [Node]) -> String {
                 else {
                     result += "\(Symbol.node) "
                 }
+            case (false, false):
+                result += "\(Symbol.bar)  "
         }
     }
 

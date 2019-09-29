@@ -1,5 +1,5 @@
 namespace List2Tree {
-    enum _Symbol {
+    enum Symbol {
         Bar = "│",
         Node = "├─",
         EndNode = "└─"
@@ -10,7 +10,7 @@ namespace List2Tree {
         children: Tree[]; 
     }
 
-    type _Node = {
+    type Node = {
         value: string;
         isLastChild: boolean;
     }
@@ -19,8 +19,8 @@ namespace List2Tree {
         return { value: "", children: [] };
     }
 
-    export function formatTree(tree: Tree, lineage: _Node[]): string {
-        var result = formatNode({ value: tree.value, isLastChild: false }, [])
+    export function formatTree(tree: Tree, lineage: Node[]): string {
+        var result = formatNode({ value: tree.value, isLastChild: false }, lineage)
         let children = tree.children
 
         for (let child of children) {
@@ -30,31 +30,33 @@ namespace List2Tree {
         return result
     }
 
-    function formatNode(node: _Node, lineage: _Node[]): string {
+    function formatNode(node: Node, lineage: Node[]): string {
         var result = ""
 
         var i = 0
         for (let node of lineage) {
             let isCurrentNode = (i == lineage.length - 1)
 
-            switch ([node.isLastChild, isCurrentNode]) {
-                case [true, true]:
-                    result += `${_Symbol.EndNode} `
+            switch ([node.isLastChild, isCurrentNode].join()) {
+                case ([true, true].join()):
+                    result += `${Symbol.EndNode} `
                     break
-                case [true, false]:
+                case [true, false].join():
                     result += "   "
                     break
-                case [false, true]:
+                case [false, true].join():
                     if (node.value == "") {
-                        result += `${_Symbol.Bar} `
+                        result += `${Symbol.Bar} `
                     }
                     else {
-                        result += `${_Symbol.Node} `
+                        result += `${Symbol.Node} `
                     }
                     break
-                case [false, false]:
-                    result += `${_Symbol.Bar}  `
+                case [false, false].join():
+                    result += `${Symbol.Bar}  `
+                    break
             }
+            i += 1
         }
 
         result += `${node.value}\n`
@@ -67,5 +69,17 @@ $(document).ready(function() {
     $("#textarea").on("input", function(event) {
         let text = $(this).val().toString();
         console.log(List2Tree.constructTree(text, []))
+
+        let tree = { value: "Foods", children: [
+            { value: "Fruits", children: [
+                { value: "Apple", children: [] },
+                { value: "Orange", children: [
+                    { value: "Cara-Cara", children: [] },
+                    { value: "Sour", children: [] },
+                ] },
+            ] }
+        ] };
+
+        console.log(List2Tree.formatTree(tree, []))
     });
 });
