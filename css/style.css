@@ -25,6 +25,12 @@ textarea {
     resize: none;
     box-shadow: inset 0 0 8px 0 rgba(0,0,0,.1);
     border-radius: 2px 0 0 2px;
+    font-family: monospace;
+    font-size: 15px;
+}
+
+textarea:focus {
+    outline: none;
 }
 
 code {
@@ -35,4 +41,6 @@ code {
     overflow: auto;
     white-space: pre;
     border-radius: 0 2px 2px 0;
+    font-family: monospace;
+    font-size: 15px;
 }
