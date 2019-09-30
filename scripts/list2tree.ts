@@ -199,6 +199,7 @@ $(document).ready(function() {
             textarea.setSelectionRange(newCursor, newCursor)
 
             event.preventDefault()
+            $(this).trigger("input")
         }
     });
 });

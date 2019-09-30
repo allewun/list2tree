@@ -150,6 +150,7 @@ $(document).ready(function () {
             textarea.value = newValue;
             textarea.setSelectionRange(newCursor, newCursor);
             event.preventDefault();
+            $(this).trigger("input");
         }
     });
 });
