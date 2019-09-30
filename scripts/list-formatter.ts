@@ -125,9 +125,47 @@ namespace List2Tree {
     }
 }
 
+//-------------------------------------
+
+interface String {
+    currentLine(cursorIndex: number): string;
+    repeat(count: number): string;
+}
+
+String.prototype.currentLine = function(cursorIndex) {
+    var i = cursorIndex
+
+    // find start of line
+    while (this.substring(i-1, i) !== "\n" && i > 0) {
+        i--;
+    }
+
+    return this.substring(i, cursorIndex)
+};
+
+//-------------------------------------
+
 $(document).ready(function() {
     $("#input").on("input", function(event) {
         let text = $(this).val().toString();
         $("#output").text(List2Tree.render(text));
+    });
+
+    $("textarea").on("keydown", function(event) {
+        if (event.which === 13) {
+            let textarea = <HTMLTextAreaElement>event.target
+
+            let cursor = textarea.selectionStart
+            let currentLine = textarea.value.currentLine(cursor)
+            let currentIndentation = currentLine.replace(/[^\s]/g, "")
+
+            let newValue = textarea.value.substring(0, cursor) + `\n${currentIndentation}` + textarea.value.substring(cursor)
+            let newCursor = cursor + 1 + currentIndentation.length
+
+            textarea.value = newValue
+            textarea.setSelectionRange(newCursor, newCursor)
+
+            event.preventDefault()
+        }
     });
 });

@@ -98,9 +98,31 @@ var List2Tree;
         return result;
     }
 })(List2Tree || (List2Tree = {}));
+String.prototype.currentLine = function (cursorIndex) {
+    var i = cursorIndex;
+    // find start of line
+    while (this.substring(i - 1, i) !== "\n" && i > 0) {
+        i--;
+    }
+    return this.substring(i, cursorIndex);
+};
+//-------------------------------------
 $(document).ready(function () {
     $("#input").on("input", function (event) {
         var text = $(this).val().toString();
         $("#output").text(List2Tree.render(text));
+    });
+    $("textarea").on("keydown", function (event) {
+        if (event.which === 13) {
+            var textarea = event.target;
+            var cursor = textarea.selectionStart;
+            var currentLine = textarea.value.currentLine(cursor);
+            var currentIndentation = currentLine.replace(/[^\s]/g, "");
+            var newValue = textarea.value.substring(0, cursor) + ("\n" + currentIndentation) + textarea.value.substring(cursor);
+            var newCursor = cursor + 1 + currentIndentation.length;
+            textarea.value = newValue;
+            textarea.setSelectionRange(newCursor, newCursor);
+            event.preventDefault();
+        }
     });
 });
