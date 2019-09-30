@@ -118,7 +118,7 @@ $(document).ready(function () {
         if (event.which === 13) {
             var cursor = textarea.selectionStart;
             var currentLine = textarea.value.currentLine(cursor);
-            var currentIndentation = currentLine.replace(/[^\s]/g, "");
+            var currentIndentation = currentLine.replace(/[^\s].*$/, "");
             var newValue = textarea.value.substring(0, cursor) + ("\n" + currentIndentation) + textarea.value.substring(cursor);
             var newCursor = cursor + 1 + currentIndentation.length;
             textarea.value = newValue;

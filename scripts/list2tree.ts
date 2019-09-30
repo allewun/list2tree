@@ -158,7 +158,7 @@ $(document).ready(function() {
         if (event.which === 13) {
             let cursor = textarea.selectionStart
             let currentLine = textarea.value.currentLine(cursor)
-            let currentIndentation = currentLine.replace(/[^\s]/g, "")
+            let currentIndentation = currentLine.replace(/[^\s].*$/, "")
 
             let newValue = textarea.value.substring(0, cursor) + `\n${currentIndentation}` + textarea.value.substring(cursor)
             let newCursor = cursor + 1 + currentIndentation.length
