@@ -22,9 +22,12 @@ namespace List2Tree {
     }
 
     export function render(string: string): string {
-        let lines = processText(string)
-        let tree = constructTree(lines)
-        return formatTree(tree, [])
+        const lines = processText(string)
+        const lineGroups = groupLines(lines)
+        const trees = lineGroups.map(group => constructTree(group))
+        const formattedTrees = trees.map(tree => formatTree(tree, []))
+
+        return formattedTrees.join("")
     }
 
     function processText(string: string): Line[] {
@@ -35,6 +38,19 @@ namespace List2Tree {
         }
 
         return lines
+    }
+
+    function groupLines(lines: Line[]): Line[][] {
+        return lines.reduce(function (accum: Line[][], line): Line[][] {
+            if (line.level == 0) {
+                accum.push([line])
+                return accum
+            }
+            else {
+                accum[accum.length - 1].push(line)
+                return accum
+            }
+        }, [])
     }
 
     function constructTree(lines: Line[]): Tree | undefined {
@@ -167,6 +183,7 @@ $(document).ready(function() {
             textarea.setSelectionRange(newCursor, newCursor)
 
             event.preventDefault()
+            $(this).trigger("input")
         }
 
         // tab key
