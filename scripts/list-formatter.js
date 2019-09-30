@@ -113,13 +113,24 @@ $(document).ready(function () {
         $("#output").text(List2Tree.render(text));
     });
     $("textarea").on("keydown", function (event) {
+        var textarea = event.target;
+        // enter key
         if (event.which === 13) {
-            var textarea = event.target;
             var cursor = textarea.selectionStart;
             var currentLine = textarea.value.currentLine(cursor);
             var currentIndentation = currentLine.replace(/[^\s]/g, "");
             var newValue = textarea.value.substring(0, cursor) + ("\n" + currentIndentation) + textarea.value.substring(cursor);
             var newCursor = cursor + 1 + currentIndentation.length;
+            textarea.value = newValue;
+            textarea.setSelectionRange(newCursor, newCursor);
+            event.preventDefault();
+        }
+        // tab key
+        else if (event.which === 9) {
+            var cursor = textarea.selectionStart;
+            var tab = "  ";
+            var newValue = textarea.value.substring(0, cursor) + tab + textarea.value.substring(cursor);
+            var newCursor = cursor + tab.length;
             textarea.value = newValue;
             textarea.setSelectionRange(newCursor, newCursor);
             event.preventDefault();

@@ -147,20 +147,35 @@ String.prototype.currentLine = function(cursorIndex) {
 
 $(document).ready(function() {
     $("#input").on("input", function(event) {
-        let text = $(this).val().toString();
-        $("#output").text(List2Tree.render(text));
+        let text = $(this).val().toString()
+        $("#output").text(List2Tree.render(text))
     });
 
     $("textarea").on("keydown", function(event) {
-        if (event.which === 13) {
-            let textarea = <HTMLTextAreaElement>event.target
+         let textarea = <HTMLTextAreaElement>event.target
 
+        // enter key
+        if (event.which === 13) {
             let cursor = textarea.selectionStart
             let currentLine = textarea.value.currentLine(cursor)
             let currentIndentation = currentLine.replace(/[^\s]/g, "")
 
             let newValue = textarea.value.substring(0, cursor) + `\n${currentIndentation}` + textarea.value.substring(cursor)
             let newCursor = cursor + 1 + currentIndentation.length
+
+            textarea.value = newValue
+            textarea.setSelectionRange(newCursor, newCursor)
+
+            event.preventDefault()
+        }
+
+        // tab key
+        else if (event.which === 9) {
+            let cursor = textarea.selectionStart
+
+            let tab = "  "
+            let newValue = textarea.value.substring(0, cursor) + tab + textarea.value.substring(cursor)
+            let newCursor = cursor + tab.length
 
             textarea.value = newValue
             textarea.setSelectionRange(newCursor, newCursor)
