@@ -31,10 +31,11 @@ namespace List2Tree {
     }
 
     function processText(string: string): Line[] {
-        var lines: Line[] = []
+        let lines: Line[] = []
 
-        for (let textLine of string.trim().split("\n")) {
-            lines.push({ text: textLine.replace(/^\s*/, ""), level: textLine.length - textLine.replace(/^\s*/, "").length })
+        for (const textLine of string.trim().split("\n")) {
+            const text = textLine.replace(/^\s*/, "")
+            lines.push({ text: text, level: textLine.length - text.length })
         }
 
         return lines
@@ -56,14 +57,14 @@ namespace List2Tree {
     function constructTree(lines: Line[]): Tree | undefined {
         if (lines.length == 0) { return undefined }
 
-        var firstLine = lines.shift()
-        var stack: Tree[] = [{ value: firstLine.text, level: firstLine.level, children: [] }]
-        var line: Line;
+        const firstLine = lines.shift()
+        let stack: Tree[] = [{ value: firstLine.text, level: firstLine.level, children: [] }]
+        let line: Line;
 
         while ((line = lines.shift()) != null) {
-            let currentNode = { value: line.text, level: line.level, children: [] }
-            var lastNode = stack[stack.length - 1]
-            var parent: Tree;
+            const currentNode = { value: line.text, level: line.level, children: [] }
+            let lastNode = stack[stack.length - 1]
+            let parent: Tree;
 
             // if last node in stack has a lower level than current line
             // => the last node is the parent of the current line
@@ -96,10 +97,10 @@ namespace List2Tree {
     }
 
     function formatTree(tree: Tree, lineage: Node[]): string {
-        var result = formatNode({ value: tree.value, isLastChild: false }, lineage)
-        let children = tree.children
+        let result = formatNode({ value: tree.value, isLastChild: false }, lineage)
+        const children = tree.children
 
-        for (let child of children) {
+        for (const child of children) {
             result += formatTree(child, lineage.concat({ value: child.value, isLastChild: child == children[children.length - 1] }))
         }
         
@@ -107,9 +108,9 @@ namespace List2Tree {
     }
 
     function formatNode(node: Node, lineage: Node[]): string {
-        var result = ""
+        let result = ""
 
-        var i = 0
+        let i = 0
         for (let node of lineage) {
             let isCurrentNode = (i == lineage.length - 1)
 
@@ -149,7 +150,7 @@ interface String {
 }
 
 String.prototype.currentLine = function(cursorIndex) {
-    var i = cursorIndex
+    let i = cursorIndex
 
     // find start of line
     while (this.substring(i-1, i) !== "\n" && i > 0) {

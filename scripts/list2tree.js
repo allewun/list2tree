@@ -8,17 +8,32 @@ var List2Tree;
     })(Symbol || (Symbol = {}));
     function render(string) {
         var lines = processText(string);
-        var tree = constructTree(lines);
-        return formatTree(tree, []);
+        var lineGroups = groupLines(lines);
+        var trees = lineGroups.map(function (group) { return constructTree(group); });
+        var formattedTrees = trees.map(function (tree) { return formatTree(tree, []); });
+        return formattedTrees.join("");
     }
     List2Tree.render = render;
     function processText(string) {
         var lines = [];
         for (var _i = 0, _a = string.trim().split("\n"); _i < _a.length; _i++) {
             var textLine = _a[_i];
-            lines.push({ text: textLine.replace(/^\s*/, ""), level: textLine.length - textLine.replace(/^\s*/, "").length });
+            var text = textLine.replace(/^\s*/, "");
+            lines.push({ text: text, level: textLine.length - text.length });
         }
         return lines;
+    }
+    function groupLines(lines) {
+        return lines.reduce(function (accum, line) {
+            if (line.level == 0) {
+                accum.push([line]);
+                return accum;
+            }
+            else {
+                accum[accum.length - 1].push(line);
+                return accum;
+            }
+        }, []);
     }
     function constructTree(lines) {
         if (lines.length == 0) {
@@ -30,7 +45,7 @@ var List2Tree;
         while ((line = lines.shift()) != null) {
             var currentNode = { value: line.text, level: line.level, children: [] };
             var lastNode = stack[stack.length - 1];
-            var parent;
+            var parent_1 = void 0;
             // if last node in stack has a lower level than current line
             // => the last node is the parent of the current line
             if (lastNode.level < currentNode.level) {
@@ -52,8 +67,8 @@ var List2Tree;
                     lastNode = stack[stack.length - 1];
                 }
             }
-            parent = lastNode;
-            parent.children.push(currentNode);
+            parent_1 = lastNode;
+            parent_1.children.push(currentNode);
             stack.push(currentNode);
         }
         return stack[0];
@@ -124,6 +139,7 @@ $(document).ready(function () {
             textarea.value = newValue;
             textarea.setSelectionRange(newCursor, newCursor);
             event.preventDefault();
+            $(this).trigger("input");
         }
         // tab key
         else if (event.which === 9) {
