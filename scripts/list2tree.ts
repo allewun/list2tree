@@ -1,8 +1,22 @@
 namespace List2Tree {
-    enum Symbol {
-        Bar = "│",
-        Node = "├─",
-        EndNode = "└─"
+    namespace Symbol {
+        export enum Style {
+            unicode = <any>"unicode", ascii = <any>"ascii"
+        }
+
+        export function bar(style: Style): string {
+            switch (style) {
+                case Style.ascii:   return "|"
+                case Style.unicode: return "│"
+            }
+        }
+
+        export function node(style: Style, terminal: Boolean): string {
+            switch (style) {
+                case Style.ascii:   return terminal ? "`-" : "|-"
+                case Style.unicode: return terminal ? "└─" : "├─"
+            }
+        }
     }
 
     type Tree = {
@@ -21,13 +35,26 @@ namespace List2Tree {
         level: number;
     }
 
-    export function render(string: string): string {
+    type Options = {
+        style: Symbol.Style;
+    }
+
+    const defaultSymbolStyle = Symbol.Style.unicode
+
+    export function render(string: string, opt: object): string {
+        const options = parseOptions(opt)
         const lines = processText(string)
         const lineGroups = groupLines(lines)
         const trees = lineGroups.map(group => constructTree(group))
-        const formattedTrees = trees.map(tree => formatTree(tree, []))
+        const formattedTrees = trees.map(tree => formatTree(tree, [], options.style))
 
         return formattedTrees.join("")
+    }
+
+    function parseOptions(options: object): Options {
+        let styleOption: string = options["style"]
+        let style: Symbol.Style = Symbol.Style[styleOption] || defaultSymbolStyle
+        return { style: style }
     }
 
     function processText(string: string): Line[] {
@@ -96,41 +123,43 @@ namespace List2Tree {
         return stack[0]
     }
 
-    function formatTree(tree: Tree, lineage: Node[]): string {
-        let result = formatNode({ value: tree.value, isLastChild: false }, lineage)
+    function formatTree(tree: Tree, lineage: Node[], style: Symbol.Style): string {
+        let result = formatNode({ value: tree.value, isLastChild: false }, lineage, style)
         const children = tree.children
 
         for (const child of children) {
-            result += formatTree(child, lineage.concat({ value: child.value, isLastChild: child == children[children.length - 1] }))
+            result += formatTree(child, lineage.concat({ value: child.value, isLastChild: child == children[children.length - 1] }), style)
         }
         
         return result
     }
 
-    function formatNode(node: Node, lineage: Node[]): string {
+    function formatNode(node: Node, lineage: Node[], style: Symbol.Style): string {
         let result = ""
 
         let i = 0
         for (let node of lineage) {
             let isCurrentNode = (i == lineage.length - 1)
 
+            console.log(Symbol.bar(style))
+
             switch ([node.isLastChild, isCurrentNode].join()) {
-                case ([true, true].join()):
-                    result += `${Symbol.EndNode} `
+                case [true, true].join():
+                    result += `${Symbol.node(style, true)} `
                     break
                 case [true, false].join():
                     result += "   "
                     break
                 case [false, true].join():
                     if (node.value == "") {
-                        result += `${Symbol.Bar} `
+                        result += `${Symbol.bar(style)} `
                     }
                     else {
-                        result += `${Symbol.Node} `
+                        result += `${Symbol.node(style, false)} `
                     }
                     break
                 case [false, false].join():
-                    result += `${Symbol.Bar}  `
+                    result += `${Symbol.bar(style)}  `
                     break
             }
             i += 1
@@ -162,14 +191,25 @@ String.prototype.currentLine = function(cursorIndex) {
 
 //-------------------------------------
 
+function render() {
+    let text = $("#input").val().toString()
+    let options = {
+        "style": $("input[type=radio][name=style]:checked").val()
+    }
+    $("#output").text(List2Tree.render(text, options))
+}
+
 $(document).ready(function() {
+    $("input[type=radio][name=style]").on("change", function(event) {
+        render();
+    });
+
     $("#input").on("input", function(event) {
-        let text = $(this).val().toString()
-        $("#output").text(List2Tree.render(text))
+        render();
     });
 
     $("textarea").on("keydown", function(event) {
-         let textarea = <HTMLTextAreaElement>event.target
+        let textarea = <HTMLTextAreaElement>event.target
 
         // enter key
         if (event.which === 13) {

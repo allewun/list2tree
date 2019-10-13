@@ -2,18 +2,41 @@ var List2Tree;
 (function (List2Tree) {
     var Symbol;
     (function (Symbol) {
-        Symbol["Bar"] = "\u2502";
-        Symbol["Node"] = "\u251C\u2500";
-        Symbol["EndNode"] = "\u2514\u2500";
+        var Style;
+        (function (Style) {
+            Style[Style["unicode"] = "unicode"] = "unicode";
+            Style[Style["ascii"] = "ascii"] = "ascii";
+        })(Style = Symbol.Style || (Symbol.Style = {}));
+        function bar(style) {
+            switch (style) {
+                case Style.ascii: return "|";
+                case Style.unicode: return "│";
+            }
+        }
+        Symbol.bar = bar;
+        function node(style, terminal) {
+            switch (style) {
+                case Style.ascii: return terminal ? "`-" : "|-";
+                case Style.unicode: return terminal ? "└─" : "├─";
+            }
+        }
+        Symbol.node = node;
     })(Symbol || (Symbol = {}));
-    function render(string) {
+    var defaultSymbolStyle = Symbol.Style.unicode;
+    function render(string, opt) {
+        var options = parseOptions(opt);
         var lines = processText(string);
         var lineGroups = groupLines(lines);
         var trees = lineGroups.map(function (group) { return constructTree(group); });
-        var formattedTrees = trees.map(function (tree) { return formatTree(tree, []); });
+        var formattedTrees = trees.map(function (tree) { return formatTree(tree, [], options.style); });
         return formattedTrees.join("");
     }
     List2Tree.render = render;
+    function parseOptions(options) {
+        var styleOption = options["style"];
+        var style = Symbol.Style[styleOption] || defaultSymbolStyle;
+        return { style: style };
+    }
     function processText(string) {
         var lines = [];
         for (var _i = 0, _a = string.trim().split("\n"); _i < _a.length; _i++) {
@@ -73,38 +96,39 @@ var List2Tree;
         }
         return stack[0];
     }
-    function formatTree(tree, lineage) {
-        var result = formatNode({ value: tree.value, isLastChild: false }, lineage);
+    function formatTree(tree, lineage, style) {
+        var result = formatNode({ value: tree.value, isLastChild: false }, lineage, style);
         var children = tree.children;
         for (var _i = 0, children_1 = children; _i < children_1.length; _i++) {
             var child = children_1[_i];
-            result += formatTree(child, lineage.concat({ value: child.value, isLastChild: child == children[children.length - 1] }));
+            result += formatTree(child, lineage.concat({ value: child.value, isLastChild: child == children[children.length - 1] }), style);
         }
         return result;
     }
-    function formatNode(node, lineage) {
+    function formatNode(node, lineage, style) {
         var result = "";
         var i = 0;
         for (var _i = 0, lineage_1 = lineage; _i < lineage_1.length; _i++) {
             var node_1 = lineage_1[_i];
             var isCurrentNode = (i == lineage.length - 1);
+            console.log(Symbol.bar(style));
             switch ([node_1.isLastChild, isCurrentNode].join()) {
-                case ([true, true].join()):
-                    result += Symbol.EndNode + " ";
+                case [true, true].join():
+                    result += Symbol.node(style, true) + " ";
                     break;
                 case [true, false].join():
                     result += "   ";
                     break;
                 case [false, true].join():
                     if (node_1.value == "") {
-                        result += Symbol.Bar + " ";
+                        result += Symbol.bar(style) + " ";
                     }
                     else {
-                        result += Symbol.Node + " ";
+                        result += Symbol.node(style, false) + " ";
                     }
                     break;
                 case [false, false].join():
-                    result += Symbol.Bar + "  ";
+                    result += Symbol.bar(style) + "  ";
                     break;
             }
             i += 1;
@@ -122,10 +146,19 @@ String.prototype.currentLine = function (cursorIndex) {
     return this.substring(i, cursorIndex);
 };
 //-------------------------------------
+function render() {
+    var text = $("#input").val().toString();
+    var options = {
+        "style": $("input[type=radio][name=style]:checked").val()
+    };
+    $("#output").text(List2Tree.render(text, options));
+}
 $(document).ready(function () {
+    $("input[type=radio][name=style]").on("change", function (event) {
+        render();
+    });
     $("#input").on("input", function (event) {
-        var text = $(this).val().toString();
-        $("#output").text(List2Tree.render(text));
+        render();
     });
     $("textarea").on("keydown", function (event) {
         var textarea = event.target;

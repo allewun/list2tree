@@ -7,6 +7,17 @@
         <link rel="stylesheet" type="text/css" href="css/style.css" media="screen" />
     </head>
     <body>
+        <form id="controls" name="style">
+            <fieldset>
+                 <label class="hidden">Style:</label>
+                 <div class="radio">
+                    <input type="radio" id="style-unicode" name="style" value="unicode" checked />
+                    <label for="style-unicode">Unicode</label>
+                    <input type="radio" id="style-ascii" name="style" value="ascii" />
+                    <label for="style-ascii">ASCII</label>
+                 </div>
+             </fieldset>
+        </form>
         <div id="container">
             <textarea id="input" spellcheck="false"></textarea>
             <code id="output"></code>
