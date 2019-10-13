@@ -51,6 +51,8 @@ namespace List2Tree {
         return formattedTrees.join("")
     }
 
+    export const tabSize = 2;
+
     function parseOptions(options: object): Options {
         let styleOption: string = options["style"]
         let style: Symbol.Style = Symbol.Style[styleOption] || defaultSymbolStyle
@@ -262,7 +264,7 @@ $(document).ready(function() {
         else if (event.which === 9) {
             const cursor = textarea.selectionStart
 
-            const tab = "  "
+            const tab = " ".repeat(List2Tree.tabSize)
             const newValue = textarea.value.substring(0, cursor) + tab + textarea.value.substring(cursor)
             const newCursor = cursor + tab.length
 

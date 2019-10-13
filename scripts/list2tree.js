@@ -32,6 +32,7 @@ var List2Tree;
         return formattedTrees.join("");
     }
     List2Tree.render = render;
+    List2Tree.tabSize = 2;
     function parseOptions(options) {
         var styleOption = options["style"];
         var style = Symbol.Style[styleOption] || defaultSymbolStyle;
@@ -208,7 +209,7 @@ $(document).ready(function () {
         // tab key
         else if (event.which === 9) {
             var cursor = textarea.selectionStart;
-            var tab = "  ";
+            var tab = " ".repeat(List2Tree.tabSize);
             var newValue = textarea.value.substring(0, cursor) + tab + textarea.value.substring(cursor);
             var newCursor = cursor + tab.length;
             textarea.value = newValue;
