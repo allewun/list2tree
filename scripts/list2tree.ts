@@ -192,14 +192,41 @@ String.prototype.currentLine = function(cursorIndex) {
 //-------------------------------------
 
 function render() {
-    let text = $("#input").val().toString()
-    let options = {
+    const text = $("#input").val().toString()
+    const options = {
         "style": $("input[type=radio][name=style]:checked").val()
     }
     $("#output").text(List2Tree.render(text, options))
 }
 
+function theme() {
+    const themeOverride = $("input[type=radio][name=theme]:checked").val()
+    const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+    switch (themeOverride) {
+        case "light": setDark(false); break;
+        case "dark": setDark(true); break;
+        default: setDark(systemDarkMode); break;
+    }
+}
+
+function setDark(isDark: Boolean) {
+    if (isDark) {
+        $("body").addClass("theme-dark");
+        $("label[for=theme-light]").removeClass("i");
+        $("label[for=theme-dark]").addClass("i");
+    }
+    else {
+        $("body").removeClass("theme-dark");
+        $("label[for=theme-light]").addClass("i");
+        $("label[for=theme-dark]").removeClass("i");
+    }
+}
+
 $(document).ready(function() {
+
+    theme();
+
     $("input[type=radio][name=style]").on("change", function(event) {
         render();
     });
@@ -208,17 +235,21 @@ $(document).ready(function() {
         render();
     });
 
+    $("input[type=radio][name=theme]").on("change", function(event) {
+        theme();
+    });
+
     $("textarea").on("keydown", function(event) {
-        let textarea = <HTMLTextAreaElement>event.target
+        const textarea = <HTMLTextAreaElement>event.target
 
         // enter key
         if (event.which === 13) {
-            let cursor = textarea.selectionStart
-            let currentLine = textarea.value.currentLine(cursor)
-            let currentIndentation = currentLine.replace(/[^\s].*$/, "")
+            const cursor = textarea.selectionStart
+            const currentLine = textarea.value.currentLine(cursor)
+            const currentIndentation = currentLine.replace(/[^\s].*$/, "")
 
-            let newValue = textarea.value.substring(0, cursor) + `\n${currentIndentation}` + textarea.value.substring(cursor)
-            let newCursor = cursor + 1 + currentIndentation.length
+            const newValue = textarea.value.substring(0, cursor) + `\n${currentIndentation}` + textarea.value.substring(cursor)
+            const newCursor = cursor + 1 + currentIndentation.length
 
             textarea.value = newValue
             textarea.setSelectionRange(newCursor, newCursor)
@@ -229,11 +260,11 @@ $(document).ready(function() {
 
         // tab key
         else if (event.which === 9) {
-            let cursor = textarea.selectionStart
+            const cursor = textarea.selectionStart
 
-            let tab = "  "
-            let newValue = textarea.value.substring(0, cursor) + tab + textarea.value.substring(cursor)
-            let newCursor = cursor + tab.length
+            const tab = "  "
+            const newValue = textarea.value.substring(0, cursor) + tab + textarea.value.substring(cursor)
+            const newCursor = cursor + tab.length
 
             textarea.value = newValue
             textarea.setSelectionRange(newCursor, newCursor)

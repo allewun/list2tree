@@ -153,12 +153,43 @@ function render() {
     };
     $("#output").text(List2Tree.render(text, options));
 }
+function theme() {
+    var themeOverride = $("input[type=radio][name=theme]:checked").val();
+    var systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    switch (themeOverride) {
+        case "light":
+            setDark(false);
+            break;
+        case "dark":
+            setDark(true);
+            break;
+        default:
+            setDark(systemDarkMode);
+            break;
+    }
+}
+function setDark(isDark) {
+    if (isDark) {
+        $("body").addClass("theme-dark");
+        $("label[for=theme-light]").removeClass("i");
+        $("label[for=theme-dark]").addClass("i");
+    }
+    else {
+        $("body").removeClass("theme-dark");
+        $("label[for=theme-light]").addClass("i");
+        $("label[for=theme-dark]").removeClass("i");
+    }
+}
 $(document).ready(function () {
+    theme();
     $("input[type=radio][name=style]").on("change", function (event) {
         render();
     });
     $("#input").on("input", function (event) {
         render();
+    });
+    $("input[type=radio][name=theme]").on("change", function (event) {
+        theme();
     });
     $("textarea").on("keydown", function (event) {
         var textarea = event.target;
